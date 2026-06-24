@@ -11,7 +11,12 @@ export type Task = { id: number; title: string; status: "todo" | "in-progress" |
 export type Column = { title: string; tasks: Task[] };
 
 export default function DashboardClient() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    { id: 1, role: "user", content: "I need a simple web app.", sender: "User" },
+    { id: 2, role: "architect", content: "Let's build a highly scalable microservices architecture with Redis caching.", sender: "System Architect" },
+    { id: 3, role: "pm", content: "Wait, the user asked for a *simple* app. Let's start with a monolith and scale later.", sender: "Product Manager" },
+    { id: 4, role: "developer", content: "I'll setup a Next.js full-stack app. It's simple but scalable.", sender: "Lead Developer" },
+  ]);
   const [columns, setColumns] = useState<Column[]>([
     {
       title: "Requirements",
@@ -36,7 +41,9 @@ export default function DashboardClient() {
     }
   ]);
   const [files, setFiles] = useState<Record<string, string>>({
-    "README.md": "# Agentic Studio\nWaiting for requirements..."
+    "page.tsx": `export default function Page() {\n  return (\n    <main>\n      <h1>Hello World</h1>\n    </main>\n  );\n}`,
+    "layout.tsx": `export default function RootLayout({ children }) {\n  return (\n    <html>\n      <body>{children}</body>\n    </html>\n  );\n}`,
+    "globals.css": `@tailwind base;\n@tailwind components;\n@tailwind utilities;`
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentTypingAgent, setCurrentTypingAgent] = useState<string | null>(null);
