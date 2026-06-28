@@ -49,10 +49,10 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
         }}
         options={{
           classes: {
-            "sp-layout": "h-full w-full !border-0 !rounded-none flex overflow-hidden",
-            "sp-file-explorer": "bg-[#12141a] w-48 shrink-0 overflow-y-auto border-r border-white/5",
-            "sp-editor": "flex-1 min-w-0 h-full border-r border-white/5",
-            "sp-preview": "bg-white flex-1 min-w-0 h-full",
+            "sp-layout": "h-full w-full !border-0 !rounded-none grid grid-cols-[200px_1fr_1fr] overflow-hidden",
+            "sp-file-explorer": "bg-[#12141a] h-full overflow-y-auto border-r border-white/5",
+            "sp-editor": "h-full min-w-0 flex flex-col border-r border-white/5",
+            "sp-preview": "bg-white h-full min-w-0",
           }
         }}
       >
