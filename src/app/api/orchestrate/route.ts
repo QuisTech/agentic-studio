@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         const architectCompletion = await openai.chat.completions.create({
           model: "qwen-plus",
           messages: [
-            { role: "system", content: "You are a System Architect. Based on the PM's requirements, suggest a modern Next.js/React technical architecture and file structure (max 3 sentences)." },
+            { role: "system", content: "You are a System Architect. Based on the PM's requirements, suggest a modern React component architecture (max 3 sentences)." },
             { role: "user", content: prompt },
             { role: "assistant", content: pmCompletion.choices[0].message.content || "" }
           ],
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
         const devCompletion = await openai.chat.completions.create({
           model: "qwen-plus",
           messages: [
-            { role: "system", content: "You are a Lead Developer. Write the React/Next.js code for the requested app based on the architect's design. Output ONLY a valid JSON object containing filenames as keys and file contents as values. DO NOT output any markdown, explanations, or code blocks. Just the raw JSON object." },
+            { role: "system", content: "You are a Lead Developer. Write the React code for the requested app based on the architect's design. The app runs in CodeSandbox (Sandpack). The main entry point must be /App.tsx. You can create other files like /components/Button.tsx. Use Tailwind CSS classes for styling (Tailwind is preconfigured). Output ONLY a valid JSON object containing absolute filenames as keys and the file contents as values. DO NOT output any markdown, explanations, or code blocks. Just the raw JSON object. Example: {\"/App.tsx\": \"import React from 'react'; export default function App() { return <div>Hello</div>; }\"}" },
             { role: "user", content: prompt },
             { role: "assistant", content: architectCompletion.choices[0].message.content || "" }
           ],
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
           console.error("Failed to parse Developer output as JSON:", devResponse);
         }
 
-        sendEvent({ type: "message", role: "developer", sender: "Lead Developer", content: "I've generated the necessary files. Check the Code Viewer." });
+        sendEvent({ type: "message", role: "developer", sender: "Lead Developer", content: "I've generated the files. Check the File Explorer and the Live Preview on the right!" });
         
         if (Object.keys(codeFiles).length > 0) {
            sendEvent({ type: "code", files: codeFiles });
