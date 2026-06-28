@@ -50,7 +50,6 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
           }
         }}
         options={{
-          editorHeight: "100%",
           classes: {
             "sp-layout": "h-full w-full !border-0 !rounded-none",
             "sp-file-explorer": "bg-[#12141a]",
