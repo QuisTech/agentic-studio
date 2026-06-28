@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
   const customStream = new ReadableStream({
     async start(controller) {
-      const sendEvent = (data: any) => {
+      const sendEvent = (data: unknown) => {
         controller.enqueue(encoder.encode(JSON.stringify(data) + "\n"));
       };
 
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
           // If the model wrapped it in markdown code blocks, strip them out.
           const cleanedJson = devResponse.replace(/^```json/g, '').replace(/^```/g, '').replace(/```$/g, '').trim();
           codeFiles = JSON.parse(cleanedJson);
-        } catch (e) {
+        } catch {
           console.error("Failed to parse Developer output as JSON:", devResponse);
         }
 
