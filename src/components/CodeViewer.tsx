@@ -63,7 +63,7 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
              <SandpackFileExplorer autoHiddenFiles />
           </div>
           <div className="flex-1 relative min-w-0">
-             <SandpackCodeEditor showTabs={true} showLineNumbers={true} style={{ height: "100%" }} />
+             <SandpackCodeEditor showTabs={true} showLineNumbers={true} wrapContent={true} style={{ height: "100%" }} />
           </div>
           <div className="flex-1 relative min-w-0 border-l border-white/5">
              <SandpackPreview showNavigator={true} showOpenInCodeSandbox={false} style={{ height: "100%" }} />
