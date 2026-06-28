@@ -104,7 +104,7 @@ export default function DashboardClient() {
             } else if (data.type === "code") {
               setFiles(prev => ({ ...prev, ...data.files }));
             }
-          } catch {
+          } catch (e) {
             console.error("Failed to parse chunk", line);
           }
         }
