@@ -36,7 +36,7 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
   }, [files]);
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute inset-0 flex flex-col h-full bg-[#151515]">
       <SandpackProvider 
         template="react-ts"
         theme="dark"
@@ -47,19 +47,11 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
             "framer-motion": "latest"
           }
         }}
-        options={{
-          classes: {
-            "sp-layout": "h-full w-full !border-0 !rounded-none grid grid-cols-[200px_1fr_1fr] overflow-hidden",
-            "sp-file-explorer": "bg-[#12141a] h-full overflow-y-auto border-r border-white/5",
-            "sp-editor": "h-full min-w-0 flex flex-col border-r border-white/5",
-            "sp-preview": "bg-white h-full min-w-0",
-          }
-        }}
       >
-        <SandpackLayout className="h-full w-full">
+        <SandpackLayout style={{ height: "100%", width: "100%", border: "none", borderRadius: 0 }}>
            <SandpackFileExplorer autoHiddenFiles />
-           <SandpackCodeEditor showTabs={true} showLineNumbers={true} wrapContent={true} style={{ height: "100%" }} />
-           <SandpackPreview showNavigator={true} showOpenInCodeSandbox={false} style={{ height: "100%" }} />
+           <SandpackCodeEditor showTabs={true} showLineNumbers={true} wrapContent={true} />
+           <SandpackPreview showNavigator={true} showOpenInCodeSandbox={false} />
         </SandpackLayout>
       </SandpackProvider>
     </div>

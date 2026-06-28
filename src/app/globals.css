@@ -54,23 +54,3 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
-
-/* Force Sandpack internal layout height constraints */
-.sp-layout {
-  --sp-layout-height: 100% !important;
-}
-
-.sp-editor {
-  display: flex !important;
-  flex-direction: column !important;
-  min-height: 0 !important;
-}
-
-.cm-theme {
-  flex: 1 !important;
-  min-height: 0 !important;
-}
-
-.cm-scroller {
-  overflow: auto !important;
-}
