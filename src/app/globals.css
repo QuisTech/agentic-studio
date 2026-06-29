@@ -55,7 +55,10 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Sandpack CodeMirror Scroll Fix */
+/* Sandpack Scroll Fixes */
+.sp-layout {
+  --sp-layout-height: 100% !important;
+}
 .sp-editor {
   display: flex !important;
   flex-direction: column !important;
