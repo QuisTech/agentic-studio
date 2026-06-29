@@ -68,28 +68,39 @@ export async function POST(req: Request) {
         const devCompletion = await openai.chat.completions.create({
           model: "qwen-plus",
           messages: [
-            { role: "system", content: "You are a Lead Developer. Write the React code for the requested app based on the architect's design. The app runs in CodeSandbox (Sandpack). The main entry point must be /App.tsx. You can create other files like /components/Button.tsx. Use Tailwind CSS classes for styling (Tailwind is preconfigured). Output ONLY a valid JSON object containing absolute filenames as keys and the file contents as values. DO NOT output any markdown, explanations, or code blocks. Just the raw JSON object. Example: {\"/App.tsx\": \"import React from 'react'; export default function App() { return <div>Hello</div>; }\"}" },
+            { role: "system", content: "You are a Lead Developer. Write the React code for the requested app based on the architect's design. The app runs in CodeSandbox (Sandpack). The main entry point must be /App.tsx. You can create other files like /components/Button.tsx. Use Tailwind CSS classes for styling. IMPORTANT: Do NOT output JSON. Output the files using the following strict markdown format:\n\n### /App.tsx\n```tsx\nimport React from 'react';\n// code here\n```\n\n### /styles.css\n```css\n/* css here */\n```" },
             ...formattedHistory,
             { role: "assistant", content: `[Product Manager]: ${pmContent}\n\n[System Architect]: ${architectContent}` }
           ],
         });
 
-        const devResponse = devCompletion.choices[0].message.content || "{}";
-        let codeFiles = {};
+        const devResponse = devCompletion.choices[0].message.content || "";
+        let codeFiles: Record<string, string> = {};
         
         try {
-          // Attempt to parse the JSON. 
-          // If the model wrapped it in markdown code blocks, strip them out.
-          const cleanedJson = devResponse.replace(/^```json/g, '').replace(/^```/g, '').replace(/```$/g, '').trim();
-          codeFiles = JSON.parse(cleanedJson);
-        } catch {
-          console.error("Failed to parse Developer output as JSON:", devResponse);
+          const fileRegex = /###\s+([^\n]+)\n```[\w]*\n([\s\S]*?)\n```/g;
+          let match;
+          while ((match = fileRegex.exec(devResponse)) !== null) {
+            const filename = match[1].trim();
+            codeFiles[filename] = match[2];
+          }
+          
+          // Fallback: if no files were found, check if it just dumped a single code block
+          if (Object.keys(codeFiles).length === 0) {
+            const singleBlock = devResponse.match(/```(?:tsx|jsx|js|ts)?\n([\s\S]*?)\n```/);
+            if (singleBlock) {
+              codeFiles["/App.tsx"] = singleBlock[1];
+            }
+          }
+        } catch (e) {
+          console.error("Failed to parse Developer output:", devResponse, e);
         }
 
-        sendEvent({ type: "message", role: "developer", sender: "Lead Developer", content: "I've generated the files. Check the File Explorer and the Live Preview on the right!" });
-        
-        if (Object.keys(codeFiles).length > 0) {
-           sendEvent({ type: "code", files: codeFiles });
+        if (Object.keys(codeFiles).length === 0) {
+          sendEvent({ type: "message", role: "system", sender: "System Error", content: "Failed to extract code files from the AI's response. The AI did not format the code correctly." });
+        } else {
+          sendEvent({ type: "message", role: "developer", sender: "Lead Developer", content: "I've generated the files. Check the File Explorer and the Live Preview on the right!" });
+          sendEvent({ type: "code", files: codeFiles });
         }
         
         sendEvent({ type: "kanban", column: "Implementation", taskId: 5, status: "done" });
