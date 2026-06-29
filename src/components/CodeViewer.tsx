@@ -5,9 +5,24 @@ import {
   SandpackLayout,
   SandpackFileExplorer,
   SandpackCodeEditor,
-  SandpackPreview
+  SandpackPreview,
+  useSandpack
 } from "@codesandbox/sandpack-react";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
+
+function SandpackForceUpdater({ newFiles }: { newFiles: Record<string, string> }) {
+  const { sandpack } = useSandpack();
+  
+  useEffect(() => {
+    for (const [path, content] of Object.entries(newFiles)) {
+      if (sandpack.files[path]?.code !== content) {
+        sandpack.updateFile(path, content);
+      }
+    }
+  }, [newFiles, sandpack]);
+
+  return null;
+}
 
 export default function CodeViewer({ files }: { files: Record<string, string> }) {
   // Sandpack expects absolute paths for files
@@ -88,6 +103,7 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
           }
         }}
       >
+        <SandpackForceUpdater newFiles={sandpackFiles} />
         <SandpackLayout className="h-full w-full flex">
           <div className="w-48 shrink-0 overflow-y-auto border-r border-white/5">
             <SandpackFileExplorer autoHiddenFiles />
