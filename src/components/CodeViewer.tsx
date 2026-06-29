@@ -33,9 +33,9 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
       formatted[path] = value;
     }
 
-    // Inject Tailwind CDN into the public/index.html for styling
-    if (!formatted["/public/index.html"]) {
-      formatted["/public/index.html"] = `<!DOCTYPE html>
+    // Inject Tailwind CDN for styling. We inject into both root and public just to be safe
+    // depending on which bundler version Sandpack is currently using.
+    const htmlContent = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -47,6 +47,12 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
     <div id="root"></div>
   </body>
 </html>`;
+
+    if (!formatted["/index.html"]) {
+      formatted["/index.html"] = htmlContent;
+    }
+    if (!formatted["/public/index.html"]) {
+      formatted["/public/index.html"] = htmlContent;
     }
 
     return formatted;
