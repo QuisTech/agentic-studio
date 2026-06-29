@@ -33,28 +33,6 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
       formatted[path] = value;
     }
 
-    // Inject Tailwind CDN for styling. We inject into both root and public just to be safe
-    // depending on which bundler version Sandpack is currently using.
-    const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agentic Studio Preview</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
-</html>`;
-
-    if (!formatted["/index.html"]) {
-      formatted["/index.html"] = htmlContent;
-    }
-    if (!formatted["/public/index.html"]) {
-      formatted["/public/index.html"] = htmlContent;
-    }
-
     return formatted;
   }, [files]);
 
@@ -101,6 +79,7 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
           dependencies: sandpackDependencies
         }}
         options={{
+          externalResources: ["https://cdn.tailwindcss.com"],
           classes: {
             "sp-layout": "h-full w-full !border-0 !rounded-none",
             "sp-file-explorer": "bg-[#12141a]",
