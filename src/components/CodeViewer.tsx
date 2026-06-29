@@ -37,6 +37,39 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
     return formatted;
   }, [files]);
 
+  // Dynamically extract dependencies from all files so the preview never crashes
+  const sandpackDependencies = useMemo(() => {
+    const deps: Record<string, string> = {
+      "lucide-react": "latest",
+      "framer-motion": "latest",
+      "@tanstack/react-query": "latest",
+      "recharts": "latest",
+      "clsx": "latest",
+      "tailwind-merge": "latest",
+      "zod": "latest",
+      "axios": "latest"
+    };
+    
+    const importRegex = /import\s+.*?\s+from\s+['"]([^'"]+)['"]/g;
+    
+    for (const fileContent of Object.values(files)) {
+      let match;
+      while ((match = importRegex.exec(fileContent)) !== null) {
+        const pkgName = match[1];
+        // Ignore relative imports and standard React/DOM
+        if (!pkgName.startsWith('.') && !pkgName.startsWith('/') && pkgName !== 'react' && pkgName !== 'react-dom') {
+            // Get base package name (e.g., @tanstack/react-query from @tanstack/react-query/core)
+            const parts = pkgName.split('/');
+            const basePkg = pkgName.startsWith('@') ? `${parts[0]}/${parts[1]}` : parts[0];
+            if (basePkg && !deps[basePkg]) {
+              deps[basePkg] = "latest";
+            }
+        }
+      }
+    }
+    return deps;
+  }, [files]);
+
   return (
     <div className="flex-1 flex flex-col h-full w-full relative">
       <SandpackProvider
@@ -44,10 +77,7 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
         theme="dark"
         files={sandpackFiles}
         customSetup={{
-          dependencies: {
-            "lucide-react": "latest",
-            "framer-motion": "latest"
-          }
+          dependencies: sandpackDependencies
         }}
         options={{
           classes: {
