@@ -55,8 +55,6 @@ export default function CodeViewer({ files }: { files: Record<string, string> })
             "sp-file-explorer": "bg-[#12141a]",
             "sp-editor": "border-r border-white/5 h-full",
             "sp-preview": "bg-white h-full",
-          },
-          editorHeight: "100%"
         }}
       >
         <SandpackLayout className="h-full w-full flex">
