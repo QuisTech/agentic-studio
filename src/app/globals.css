@@ -11,7 +11,7 @@
   --color-panel-hover: #2a2d35;
   --color-border: #2e323b;
   --color-muted: #9ca3af;
-  
+
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -61,11 +61,13 @@ body {
   flex-direction: column !important;
   height: 100% !important;
 }
+
 .sp-cm {
   flex: 1 !important;
   height: 100% !important;
   overflow: hidden !important;
 }
+
 .cm-scroller {
   overflow-y: auto !important;
   height: 100% !important;
