@@ -1,9 +1,9 @@
 "use client";
 
-import { Download, Bot, Settings, Activity } from "lucide-react";
+import { Download, Bot, Settings, Activity, Trash2 } from "lucide-react";
 import { downloadProjectAsZip } from "@/lib/zip";
 
-export default function Header({ files }: { files: Record<string, string> }) {
+export default function Header({ files, onClearSession }: { files: Record<string, string>, onClearSession: () => void }) {
   const handleDownload = () => {
     downloadProjectAsZip(files, "agentic-generated-code");
   };
@@ -32,6 +32,13 @@ export default function Header({ files }: { files: Record<string, string> }) {
         <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-sm font-medium">
           <Activity className="w-4 h-4 text-purple-400" />
           <span>System Log</span>
+        </button>
+        <button 
+          onClick={onClearSession}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all text-sm font-medium text-red-400"
+        >
+          <Trash2 className="w-4 h-4" />
+          <span>Clear Session</span>
         </button>
         <button 
           onClick={handleDownload}

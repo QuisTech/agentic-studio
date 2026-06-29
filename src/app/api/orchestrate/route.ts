@@ -11,7 +11,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "QWEN_API_KEY is not set" }, { status: 500 });
   }
 
-  const { prompt } = await req.json();
+  const { prompt, history } = await req.json();
+
+  // Convert custom message format to OpenAI format
+  const formattedHistory = (history || []).map((msg: any) => ({
+    role: msg.role === "user" ? "user" : "assistant",
+    content: msg.role === "user" ? msg.content : `[${msg.sender}]: ${msg.content}`
+  }));
 
   const encoder = new TextEncoder();
 
@@ -29,12 +35,13 @@ export async function POST(req: Request) {
         const pmCompletion = await openai.chat.completions.create({
           model: "qwen-plus",
           messages: [
-            { role: "system", content: "You are an expert Product Manager. Briefly break down the user's request into technical requirements (max 3 sentences)." },
-            { role: "user", content: prompt }
+            { role: "system", content: "You are an expert Product Manager. Briefly break down the user's latest request into technical requirements (max 3 sentences)." },
+            ...formattedHistory
           ],
         });
         
-        sendEvent({ type: "message", role: "pm", sender: "Product Manager", content: pmCompletion.choices[0].message.content });
+        const pmContent = pmCompletion.choices[0].message.content || "";
+        sendEvent({ type: "message", role: "pm", sender: "Product Manager", content: pmContent });
         sendEvent({ type: "kanban", column: "Requirements", taskId: 1, status: "done" });
         sendEvent({ type: "kanban", column: "Architecture", taskId: 3, status: "in-progress" });
 
@@ -44,13 +51,14 @@ export async function POST(req: Request) {
         const architectCompletion = await openai.chat.completions.create({
           model: "qwen-plus",
           messages: [
-            { role: "system", content: "You are a System Architect. Based on the PM's requirements, suggest a modern React component architecture (max 3 sentences)." },
-            { role: "user", content: prompt },
-            { role: "assistant", content: pmCompletion.choices[0].message.content || "" }
+            { role: "system", content: "You are a System Architect. Based on the PM's requirements and the history, suggest a modern React component architecture (max 3 sentences)." },
+            ...formattedHistory,
+            { role: "assistant", content: `[Product Manager]: ${pmContent}` }
           ],
         });
 
-        sendEvent({ type: "message", role: "architect", sender: "System Architect", content: architectCompletion.choices[0].message.content });
+        const architectContent = architectCompletion.choices[0].message.content || "";
+        sendEvent({ type: "message", role: "architect", sender: "System Architect", content: architectContent });
         sendEvent({ type: "kanban", column: "Architecture", taskId: 3, status: "done" });
         sendEvent({ type: "kanban", column: "Implementation", taskId: 5, status: "in-progress" });
 
@@ -61,8 +69,8 @@ export async function POST(req: Request) {
           model: "qwen-plus",
           messages: [
             { role: "system", content: "You are a Lead Developer. Write the React code for the requested app based on the architect's design. The app runs in CodeSandbox (Sandpack). The main entry point must be /App.tsx. You can create other files like /components/Button.tsx. Use Tailwind CSS classes for styling (Tailwind is preconfigured). Output ONLY a valid JSON object containing absolute filenames as keys and the file contents as values. DO NOT output any markdown, explanations, or code blocks. Just the raw JSON object. Example: {\"/App.tsx\": \"import React from 'react'; export default function App() { return <div>Hello</div>; }\"}" },
-            { role: "user", content: prompt },
-            { role: "assistant", content: architectCompletion.choices[0].message.content || "" }
+            ...formattedHistory,
+            { role: "assistant", content: `[Product Manager]: ${pmContent}\n\n[System Architect]: ${architectContent}` }
           ],
         });
 
